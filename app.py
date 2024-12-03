@@ -4,7 +4,7 @@ import base64
 import pathlib
 import os
 
-api_key = os.getenv("OPENAI_API_KEY")
+# api_key = os.getenv("OPENAI_API_KEY")
 
 api_key = os.getenv("RUNPOD_API_KEY")
 runpod_serverless_id = os.getenv("RUNPOD_SERVERLESS_ID")
