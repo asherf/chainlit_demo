@@ -1,5 +1,7 @@
 import chainlit as cl
 import openai
+import base64
+import pathlib
 import os
 
 api_key = os.getenv("OPENAI_API_KEY")
@@ -13,7 +15,23 @@ model_kwargs = {"model": "chatgpt-4o-latest", "temperature": 0.3, "max_tokens": 
 @cl.on_message
 async def on_message(message: cl.Message):
     message_history = cl.user_session.get("message_history", [])
-    message_history.append({"role": "user", "content": message.content})
+    images = [fl for fl in message.elements or [] if "image" in fl.mime]
+    if images:
+        img = base64.b64encode(pathlib.Path(images[0].path).read_bytes()).decode("utf-8")
+        message_history.append(
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": message.content or "What’s in this image?",
+                    },
+                    {"type": "image_url", "image_url": f"data:image/jpeg;base64,{img}"},
+                ],
+            }
+        )
+    else:
+        message_history.append({"role": "user", "content": message.content})
     response_message = cl.Message(content="")
     await response_message.send()
 
